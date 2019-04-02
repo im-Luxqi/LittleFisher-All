@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: gateway
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yml
+        prefix: little-fisher
+        group: LITTLE_FISHER_GROUP
+  profiles:
+    active: gateway,public
