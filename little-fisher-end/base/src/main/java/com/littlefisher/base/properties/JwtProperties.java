@@ -1,4 +1,4 @@
-package com.littlefisher.gateway.properties;
+package com.littlefisher.base.properties;
 
 import org.springframework.stereotype.Component;
 

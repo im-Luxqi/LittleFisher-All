@@ -1,22 +1,22 @@
-package com.littlefisher.gateway.util;
+package com.littlefisher.base.util;
 
-import com.littlefisher.gateway.properties.JwtProperties;
+import com.littlefisher.base.constants.JwtConstants;
+import com.littlefisher.base.properties.JwtProperties;
+import com.littlefisher.base.vo.SysRoleVo;
+import com.littlefisher.base.vo.SysUserVo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 
 /**
  * Jwt Util
@@ -158,35 +158,84 @@ public class JwtTokenUtil {
         String refreshedToken;
         try {
             final Claims claims = getClaimFromToken(token);
-            refreshedToken = generateToken(userInfoClaim(claims), randomKey);
+            refreshedToken = generateToken(new HashMap<>(), randomKey);
+            //todo: 换个更好的方案
+            Map<String, Object> temp = new HashMap<>();
+            temp.put(JwtConstants.USER_ID, claims.get(JwtConstants.USER_ID));
+            temp.put(JwtConstants.USER_NAME, claims.get(JwtConstants.USER_NAME));
+            temp.put(JwtConstants.AUTHORITIES, claims.get(JwtConstants.AUTHORITIES));
+
+            refreshedToken = generateToken(temp, randomKey);
         } catch (Exception e1) {
             refreshedToken = null;
         }
         return refreshedToken;
     }
 
-    /**
-     * 设置jwt用户信息
-     * @param claims
-     * @return
-     */
-    public Map<String, Object> userInfoClaim(Map<String, Object>  claims){
-        Map<String, Object> map = new HashMap<>();
-        map.put("username", claims.get("username"));
-        map.put("authorities", claims.get("authorities"));
-        return map;
+    public List<String> getUserRoles(HttpServletRequest request){
+        String token = getTokenFromRequest(request);
+        if (token == null) {
+            return null;
+        }
+        Set<String> userRoles= new HashSet<String>();
+        List<Map<String,Object>> roleVos = (List<Map<String, Object>>) getClaimFromToken(token).get(JwtConstants.AUTHORITIES);
+        roleVos.forEach(roleVo->{
+            userRoles.add((String) roleVo.get("roleCode"));
+        });
+        return new ArrayList<>(userRoles) ;
     }
 
     /**
-     * 设置jwt用户信息
-     * @param authentication
+     * 从符合条件的请求中取出token
+     * @param request
      * @return
      */
-    public Map<String, Object> userInfoClaim(Authentication authentication){
-        Map<String, Object> claims = new HashMap<>();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        claims.put("username", userDetails.getUsername());
-        claims.put("authorities", userDetails.getAuthorities());
-        return claims;
+    public String getTokenFromRequest(HttpServletRequest request) {
+        String authHeader = beValidJwtRequest(request);
+        if (authHeader==null) {
+            return null;
+        }
+        return authHeader.substring(JwtConstants.AUTH_HEADER_START.length());
     }
+
+
+    /**
+     * 检测 request 是否符合  Authorization：bearer XXXXXXXX...
+     * 符合返回 request header,不符合返回null
+     * @param request
+     * @return
+     */
+    public String beValidJwtRequest(HttpServletRequest request) {
+        String authHeader = request.getHeader(JwtConstants.AUTH_HEADER);
+        if((StringUtils.isBlank(authHeader) || !authHeader.startsWith(JwtConstants.AUTH_HEADER_START))){
+            return null;
+        }
+        return authHeader;
+    }
+
+
+//    /**
+//     * 设置jwt用户信息
+//     * @param claims
+//     * @return
+//     */
+//    public Map<String, Object> userInfoClaim(Map<String, Object>  claims){
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("username", claims.get("username"));
+//        map.put("authorities", claims.get("authorities"));
+//        return map;
+//    }
+//
+//    /**
+//     * 设置jwt用户信息
+//     * @param authentication
+//     * @return
+//     */
+//    public Map<String, Object> userInfoClaim(Authentication authentication){
+//        Map<String, Object> claims = new HashMap<>();
+//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+//        claims.put("username", userDetails.getUsername());
+//        claims.put("authorities", userDetails.getAuthorities());
+//        return claims;
+//    }
 }

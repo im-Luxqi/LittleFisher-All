@@ -3,6 +3,7 @@ package com.littlefisher.fishermanage.controller;
 import com.littlefisher.base.annotation.SysLog;
 import com.littlefisher.base.constants.FisherServiceNameConstants;
 import com.littlefisher.base.util.ApiResult;
+import com.littlefisher.base.util.JwtTokenUtil;
 import com.littlefisher.base.util.UserUtil;
 import com.littlefisher.base.vo.SysResourceVO;
 import com.littlefisher.fishermanage.model.dto.SysResourceTree;
@@ -36,6 +37,9 @@ public class SysResourceController {
     private SysResourceService sysResourceService;
 
     @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
     private HttpServletRequest request;
 
     /**
@@ -46,8 +50,9 @@ public class SysResourceController {
     @SysLog(serviceId = FisherServiceNameConstants.FISHER_USER_SERVICE, moduleName = MODULE_NAME, actionName = "根据token查询当前用户权限的菜单树")
     @ApiOperation(value = "获取当前用户的菜单树", notes = "根据token查询当前用户权限的菜单树", httpMethod = "GET")
     @GetMapping("/menu/tree")
-    public ApiResult<List<SysResourceTree>> getMenuTree(HttpServletRequest request01) {
-        List<String> roleCodes = UserUtil.getRoles(request);
+    public ApiResult<List<SysResourceTree>> getMenuTree(HttpServletRequest request01){
+//        List<String> roleCodes = UserUtil.getRoles(request);
+        List<String> roleCodes = jwtTokenUtil.getUserRoles(request);
         List<SysResourceTree> list = sysResourceService.getMenuTreeByRoleCodes(roleCodes);
         return new ApiResult<>(list);
     }

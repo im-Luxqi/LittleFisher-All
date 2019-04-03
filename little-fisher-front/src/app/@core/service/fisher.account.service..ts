@@ -19,17 +19,17 @@ export class FisherAccountService {
         
 
         // const menu: NbMenuItem[] = [
-        //     {
-        //       title: 'E-commerce',
-        //       icon: 'nb-e-commerce',
-        //       link: '/pages/dashboard',
-        //       home: true,
-        //     },
-        //     {
-        //       title: 'IoT Dashboard',
-        //       icon: 'nb-home',
-        //       link: '/pages/iot-dashboard',
-        //     },
+        //     // {
+        //     //   title: 'E-commerce',
+        //     //   icon: 'nb-e-commerce',
+        //     //   link: '/pages/dashboard',
+        //     //   home: true,
+        //     // },
+        //     // {
+        //     //   title: 'IoT Dashboard',
+        //     //   icon: 'nb-home',
+        //     //   link: '/pages/iot-dashboard',
+        //     // },
         //     {
         //       title: 'FEATURES',
         //       group: true,

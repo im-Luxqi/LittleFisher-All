@@ -1,12 +1,13 @@
 package com.littlefisher.gateway.filter;
 
 import com.alibaba.fastjson.JSON;
+import com.littlefisher.base.constants.JwtConstants;
 import com.littlefisher.base.util.HttpReply;
+import com.littlefisher.base.util.JwtTokenUtil;
 import com.littlefisher.base.util.ParameterRequestWrapper;
 import com.littlefisher.gateway.enums.JwtRedisEnum;
 import com.littlefisher.gateway.enums.JwtUrlEnum;
 import com.littlefisher.gateway.properties.PublicProperties;
-import com.littlefisher.gateway.util.JwtTokenUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,15 +87,24 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         }
 
         // 获取Authorization
-        String authHeader = request.getHeader("Authorization");
-        if (StringUtils.isBlank(authHeader) || !authHeader.startsWith("Bearer ")) {
-            logger.error("Authorization的开头不是Bearer，Authorization===>【{}】", authHeader);
+         String authToken = jwtTokenUtil.getTokenFromRequest(request);
+
+         if(authToken==null){//request不符合规范
+             logger.error("Authorization的开头不是Bearer，Authorization===>【{}】", request.getHeader(JwtConstants.AUTH_HEADER));
             responseEntity(response, HttpStatus.UNAUTHORIZED.value(), "暂无权限！");
             return;
         }
 
+//        String authHeader = request.getHeader("Authorization");
+//        if (StringUtils.isBlank(authHeader) || !authHeader.startsWith("Bearer ")) {
+//            logger.error("Authorization的开头不是Bearer，Authorization===>【{}】", authHeader);
+//            responseEntity(response, HttpStatus.UNAUTHORIZED.value(), "暂无权限！");
+//            return;
+//        }
+
         // 截取token
-        String authToken = authHeader.substring("Bearer ".length());
+//        String authToken = authHeader.substring("Bearer ".length());
+
 
         // 判断token是否失效
         if (jwtTokenUtil.isTokenExpired(authToken)) {

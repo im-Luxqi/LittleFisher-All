@@ -17,20 +17,37 @@ import { NbMenuItem } from '@nebular/theme';
 })
 export class PagesComponent implements OnInit, OnDestroy {
 
-  private menu: any;
+  private menu: NbMenuItem[];
   private menuSubscription: any;
 
   constructor(private fisherAccountService: FisherAccountService) {}
   ngOnInit() {
     this.menuSubscription = this.fisherAccountService.getMenu()
-      .subscribe((data: NbMenuItem[]) => {
+      .subscribe((data: any) => {
         this.menu = [];
-        if (data) console.log(data);
+        if (data){
+        // this.adjustDataFormat(data); 
+        console.log(data.data);
+        this.menu = data.data
+        console.log(this.menu);
+        }
+
+        
       });
   }
   ngOnDestroy() {
     // this.menuSubscription.unsubscribe();
   }
 
+  adjustDataFormat(data:any[]){
+
+    for(var menu in data){
+        const nbMenuItem = new NbMenuItem();
+        nbMenuItem.title = "";
+        nbMenuItem.icon
+        nbMenuItem;
+
+    }
+  }
 
 }

@@ -2,9 +2,10 @@ package com.littlefisher.gateway.configspringsecurity;
 
 import com.alibaba.fastjson.JSON;
 import com.littlefisher.base.util.HttpReply;
+import com.littlefisher.base.util.JwtTokenUtil;
 import com.littlefisher.gateway.enums.JwtRedisEnum;
 import com.littlefisher.gateway.properties.PublicProperties;
-import com.littlefisher.gateway.util.JwtTokenUtil;
+import com.littlefisher.gateway.util.GatewayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,8 @@ public class LittleFisherAuthenticationSuccessHandler extends SavedRequestAwareA
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
+    private GatewayUtil gatewayUtil;
+    @Autowired
     private PublicProperties securityPropertiess;
 
     @Override
@@ -41,7 +44,7 @@ public class LittleFisherAuthenticationSuccessHandler extends SavedRequestAwareA
         //创建token
         logger.info("username：【{}】", username);
         final String randomKey = jwtTokenUtil.getRandomKey();
-        final String token = jwtTokenUtil.generateToken(jwtTokenUtil.userInfoClaim(authentication)
+        final String token = jwtTokenUtil.generateToken(gatewayUtil.userInfoClaim(authentication)
                 , randomKey);
         logger.info("登录成功！");
 
